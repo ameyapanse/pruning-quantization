@@ -146,13 +146,13 @@ class OurGATConv(GATConv) :
         if isinstance(in_channels, int):
             self.lin_src = Linear(in_channels, heads * out_channels, bias=False,
                                   weight_initializer='glorot')
-            self.lin_dest = self.lin_src
+            self.lin_dst = self.lin_src
         else:
             self.lin_src = Linear(in_channels[0], heads * out_channels, False)
-            self.lin_dest = Linear(in_channels[1], heads * out_channels, False)
+            self.lin_dst = Linear(in_channels[1], heads * out_channels, False)
 
         self.att_src = Parameter(torch.Tensor(1, heads, out_channels))
-        self.att_dest = Parameter(torch.Tensor(1, heads, out_channels))
+        self.att_dst = Parameter(torch.Tensor(1, heads, out_channels))
 
         # Comment in 2.0.0+, but currently incompatible/unsure
         # if edge_dim is not None:
@@ -162,7 +162,8 @@ class OurGATConv(GATConv) :
         # else:
         #     self.lin_edge = None
         #     self.register_parameter('att_edge', None)
-
+        self.lin_edge = None
+        self.register_parameter('att_edge', None)
         if bias and concat:
             self.bias = Parameter(torch.Tensor(heads * out_channels))
         elif bias and not concat:
@@ -199,7 +200,7 @@ class OurGATConv(GATConv) :
 
             x_l = x_r = x.view(-1, H, C)
             alpha_l = (x_l * self.att_src).sum(dim=-1)
-            alpha_r = (x_r * self.att_dest).sum(dim=-1)
+            alpha_r = (x_r * self.att_dst).sum(dim=-1)
 
             # alpha_l = (x_l[:, :, :-1] * self.att_l[:, :, :-1]).sum(dim=-1)
             # alpha_r = (x_r[:, :, :-1] * self.att_r[:, :, :-1]).sum(dim=-1)
@@ -211,8 +212,8 @@ class OurGATConv(GATConv) :
 
             alpha_l = (x_l * self.att_src).sum(dim=-1)
             if x_r is not None:
-                x_r = self.lin_dest(x_r).view(-1, H, C)
-                alpha_r = (x_r * self.att_dest).sum(dim=-1)
+                x_r = self.lin_dst(x_r).view(-1, H, C)
+                alpha_r = (x_r * self.att_dst).sum(dim=-1)
 
         assert x_l is not None
         assert alpha_l is not None

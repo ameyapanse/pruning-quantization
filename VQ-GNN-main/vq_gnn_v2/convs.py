@@ -20,8 +20,7 @@ import math
 
 import pdb
 
-from torch.nn import Parameter
-from torch_geometric.nn.dense.linear import Linear
+Revert from torch.nn import Parameter, Linear
 
 
 class OurGCNConv(GCNConv) :
@@ -139,31 +138,19 @@ class OurGATConv(GATConv) :
         self.dropout = dropout
         self.add_self_loops = add_self_loops
 
-        # Comment in 2.0.0+, but currently incompatible/unsure
-        # self.edge_dim = edge_dim
-        # self.fill_value = fill_value
-
         if isinstance(in_channels, int):
-            self.lin_src = Linear(in_channels, heads * out_channels, bias=False,
-                                  weight_initializer='glorot')
-            self.lin_dst = self.lin_src
+            self.lin_l = Linear(in_channels, heads * out_channels, bias=False)
+            self.lin_r = self.lin_l
         else:
-            self.lin_src = Linear(in_channels[0], heads * out_channels, False)
-            self.lin_dst = Linear(in_channels[1], heads * out_channels, False)
+            self.lin_l = Linear(in_channels[0], heads * out_channels, False)
+            self.lin_r = Linear(in_channels[1], heads * out_channels, False)
 
-        self.att_src = Parameter(torch.Tensor(1, heads, out_channels))
-        self.att_dst = Parameter(torch.Tensor(1, heads, out_channels))
+        self.att_l = Parameter(torch.Tensor(1, heads, out_channels))
+        self.att_r = Parameter(torch.Tensor(1, heads, out_channels))
 
-        # Comment in 2.0.0+, but currently incompatible/unsure
-        # if edge_dim is not None:
-        #     self.lin_edge = Linear(edge_dim, heads * out_channels, bias=False,
-        #                            weight_initializer='glorot')
-        #     self.att_edge = Parameter(torch.Tensor(1, heads, out_channels))
-        # else:
-        #     self.lin_edge = None
-        #     self.register_parameter('att_edge', None)
-        self.lin_edge = None
-        self.register_parameter('att_edge', None)
+        # self.att_l = torch.nn.utils.spectral_norm(self.att_l)
+        # self.att_r = torch.nn.utils.spectral_norm(self.att_r)
+
         if bias and concat:
             self.bias = Parameter(torch.Tensor(heads * out_channels))
         elif bias and not concat:
@@ -199,8 +186,8 @@ class OurGATConv(GATConv) :
             # x_l = x_r = self.lin_l(x).view(-1, H, C)
 
             x_l = x_r = x.view(-1, H, C)
-            alpha_l = (x_l * self.att_src).sum(dim=-1)
-            alpha_r = (x_r * self.att_dst).sum(dim=-1)
+            alpha_l = (x_l * self.att_l).sum(dim=-1)
+            alpha_r = (x_r * self.att_r).sum(dim=-1)
 
             # alpha_l = (x_l[:, :, :-1] * self.att_l[:, :, :-1]).sum(dim=-1)
             # alpha_r = (x_r[:, :, :-1] * self.att_r[:, :, :-1]).sum(dim=-1)
@@ -208,12 +195,12 @@ class OurGATConv(GATConv) :
             x_l, x_r = x[0], x[1]
             assert x[0].dim() == 2, 'Static graphs not supported in `GATConv`.'
 
-            x_l = self.lin_src(x_l).view(-1, H, C)
+            x_l = self.lin_l(x_l).view(-1, H, C)
 
-            alpha_l = (x_l * self.att_src).sum(dim=-1)
+            alpha_l = (x_l * self.att_l).sum(dim=-1)
             if x_r is not None:
-                x_r = self.lin_dst(x_r).view(-1, H, C)
-                alpha_r = (x_r * self.att_dst).sum(dim=-1)
+                x_r = self.lin_r(x_r).view(-1, H, C)
+                alpha_r = (x_r * self.att_r).sum(dim=-1)
 
         assert x_l is not None
         assert alpha_l is not None

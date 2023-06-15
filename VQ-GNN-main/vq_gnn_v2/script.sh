@@ -1,0 +1,1 @@
+python main_node.py --hidden-channels 256  --lr 3e-3 --epochs 5000 --batch-size 20000 --test-batch-size 0 --num-M 4096 --num-D 4  --conv-type GAT --sampler-type node --dataset ppi --skip

@@ -1,5 +1,10 @@
 import argparse
-
+# --hidden-channels 256
+# --lr 3e-3
+# --epochs 5000
+# --batch-size 20000
+# --test-batch-size 0
+# --num-M 4096 --num-D 4  --conv-type GAT --sampler-type node --dataset ppi --skip
 def parse() :
     parser = argparse.ArgumentParser(description='OGBN-Arxiv (GNN)')
     parser.add_argument('--no-second-fc', action='store_false', default=True)
@@ -14,22 +19,22 @@ def parse() :
     parser.add_argument('--kmeans-iter', type=int, default=100)
     parser.add_argument('--dropbranch', type=float, default=0.)
     parser.add_argument('--weight-ahead', action='store_true')
-    parser.add_argument('--skip', action='store_true')
+    parser.add_argument('--skip', action='store_true', default=True)
     parser.add_argument('--commitment-cost', type=float, default=0.)
     parser.add_argument('--num-branch', type=int, default=0)
     parser.add_argument('--ce-only', action='store_true')
     parser.add_argument('--sche', action='store_true')
     parser.add_argument('--use-gcn', action='store_true')  # not used
 
-    parser.add_argument('--data-root', type=str, default='/cmlscratch/kong/datasets')
+    parser.add_argument('--data-root', type=str, default='./datasets')
     parser.add_argument('--device', type=int, default=0)
     parser.add_argument('--num-layers', type=int, default=3)
-    parser.add_argument('--hidden-channels', type=int, default=128)
+    parser.add_argument('--hidden-channels', type=int, default=256)
     parser.add_argument('--dropout', type=float, default=0)
-    parser.add_argument('--lr', type=float, default=0.01)
-    parser.add_argument('--epochs', type=int, default=500)
+    parser.add_argument('--lr', type=float, default=3e-3)
+    parser.add_argument('--epochs', type=int, default=5000)
 
-    parser.add_argument('--batch-size', type=int, default=10000)
+    parser.add_argument('--batch-size', type=int, default=100)
     parser.add_argument('--test-batch-size', type=int, default=60000)
     parser.add_argument('--num-M', type=int, default=256)
     parser.add_argument('--num-D', type=int, default=4)
@@ -40,11 +45,11 @@ def parse() :
     parser.add_argument('--warm-up-epochs', type=float, default=0)
 
     parser.add_argument('--momentum', type=float, default=0.1)
-    parser.add_argument('--conv-type', type=str, default='GCN',
+    parser.add_argument('--conv-type', type=str, default='GAT',
                         choices=['GCN', 'SAGE', 'GAT'])
     parser.add_argument('--transformer-flag', action='store_true')
     parser.add_argument('--clip', nargs='+', type=float, default=None)  # w, a
-    parser.add_argument('--dataset', type=str, default='arxiv',
+    parser.add_argument('--dataset', type=str, default='ppi',
                         choices=['arxiv', 'products', 'yelp', 'reddit', 'flickr', 'ppi', 'cluster', 'collab', 'citation2'])
     parser.add_argument('--alpha-dropout-flag', action='store_true')
     parser.add_argument('--num-workers', type=int, default=0)

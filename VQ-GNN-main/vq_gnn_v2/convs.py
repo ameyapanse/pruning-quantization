@@ -20,7 +20,7 @@ import math
 
 import pdb
 
-Revert from torch.nn import Parameter, Linear
+from torch.nn import Parameter, Linear
 
 
 class OurGCNConv(GCNConv) :

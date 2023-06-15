@@ -20,7 +20,8 @@ import math
 
 import pdb
 
-from torch.nn import Parameter, Linear
+from torch.nn import Parameter
+from torch_geometric.nn.dense.linear import Linear
 
 
 class OurGCNConv(GCNConv) :

@@ -11,7 +11,7 @@ import torch
 import torch.optim as optim
 import torch_geometric.transforms as T
 from ogb.graphproppred import PygGraphPropPredDataset
-from torch.utils.tensorboard import SummaryWriter
+#from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import DataLoader
 from torch_geometric.datasets import MNISTSuperpixels, ZINC, QM9
 from torchvision import transforms
@@ -130,22 +130,22 @@ def register_logging_files(args):
     tb_writer = None
     best_results_file = None
     log_file = None
-    if args.exps_dir is not None:
-        exps_dir = Path(args.exps_dir) / 'pyg_with_pruning' / args.dataset / args.pruning_method
-        if args.pruning_method == 'random':
-            exps_dir = exps_dir / str(args.random_pruning_prob)
-        elif args.pruning_method == 'minhash_lsh':
-            exps_dir = exps_dir / str(args.num_minhash_funcs)
+    # if args.exps_dir is not None:
+    #     exps_dir = Path(args.exps_dir) / 'pyg_with_pruning' / args.dataset / args.pruning_method
+    #     if args.pruning_method == 'random':
+    #         exps_dir = exps_dir / str(args.random_pruning_prob)
+    #     elif args.pruning_method == 'minhash_lsh':
+    #         exps_dir = exps_dir / str(args.num_minhash_funcs)
+    #
+    #     exps_dir = exps_dir / get_time_str()
+    #     best_results_file = exps_dir / 'best_results.txt'
+    #     log_file = exps_dir / r'log.log'
+    #     tensorboard_dir = exps_dir / 'tensorboard'
+    #     if not tensorboard_dir.exists():
+    #         tensorboard_dir.mkdir(parents=True, exist_ok=True)
 
-        exps_dir = exps_dir / get_time_str()
-        best_results_file = exps_dir / 'best_results.txt'
-        log_file = exps_dir / r'log.log'
-        tensorboard_dir = exps_dir / 'tensorboard'
-        if not tensorboard_dir.exists():
-            tensorboard_dir.mkdir(parents=True, exist_ok=True)
-
-        tb_writer = SummaryWriter(log_dir=tensorboard_dir)
-        tb_writer.iteration = 0
+        # tb_writer = SummaryWriter(log_dir=tensorboard_dir)
+        # tb_writer.iteration = 0
 
     register_logger(log_file=log_file, stdout=True)
     log_command()

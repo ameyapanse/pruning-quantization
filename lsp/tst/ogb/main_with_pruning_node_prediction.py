@@ -8,7 +8,7 @@ from sklearn.metrics import f1_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from torch_geometric.data import NeighborSampler
 from torch_geometric.datasets import Reddit, Amazon, Planetoid, PPI, GitHub
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from os.path import join
 
@@ -220,8 +220,8 @@ def main():
     args = get_args()
     dataset = get_dataset(args.dataset)
     data = dataset.data
-    tb_writer = SummaryWriter()
-    tb_writer.iteration = 0
+    tb_writer = None
+    # tb_writer.iteration = 0
 
     device = torch.device(
         "cuda:" + str(args.device)) if torch.cuda.is_available() and args.device != 'cpu' else torch.device("cpu")
@@ -283,18 +283,18 @@ def main():
         print(f'Train ACC: {train_acc:.4f}, Val ACC: {val_acc:.4f}, '
               f'Test ACC: {test_acc:.4f}')
 
-        tb_writer.add_scalars('Accuracy',
-                              {'train': train_acc,
-                               'Validation': val_acc,
-                               'Test': test_acc},
-                              epoch)
+        # tb_writer.add_scalars('Accuracy',
+        #                       {'train': train_acc,
+        #                        'Validation': val_acc,
+        #                        'Test': test_acc},
+        #                       epoch)
 
         max_train_acc = max(max_train_acc, train_acc)
         max_val_acc = max(max_val_acc, val_acc)
         max_test_acc = max(max_test_acc, test_acc)
 
-    tb_writer.add_scalar('time/train', np.mean(train_times))
-    tb_writer.add_scalar('time/val', np.mean(val_times))
+    # tb_writer.add_scalar('time/train', np.mean(train_times))
+    # tb_writer.add_scalar('time/val', np.mean(val_times))
     experiment_logs = dict()
     experiment_logs = clearml_task.connect(experiment_logs)
     experiment_logs['time/train'] = np.mean(train_times)
@@ -303,6 +303,7 @@ def main():
     experiment_logs['max train accuracy'] = max_train_acc
     experiment_logs['max val accuracy'] = max_val_acc
     experiment_logs['max test accuracy'] = max_test_acc
+    print(experiment_logs)
 
 
 if __name__ == '__main__':

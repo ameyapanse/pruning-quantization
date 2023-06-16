@@ -2,7 +2,7 @@ import pickle
 import time
 
 import numpy as np
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 from src.utils.date_utils import get_time_str
 from src.utils.logging_utils import get_clearml_logger
@@ -25,19 +25,19 @@ def main(args):
             graph_dataset = pickle.load(fp)
 
     tb_writer = None
-    if args.enable_clearml_logger:
-        tb_writer = SummaryWriter(log_dir=None)
-        tags = [
-            f'Pruning method: {args.pruning_method}',
-            f'Architecture: {args.gnn}',
-            f'dim_edges:{args.dim_edges}',
-        ]
-        pruning_param_name = 'num_minhash_funcs' if 'minhash_lsh' in args.pruning_method else 'random_pruning_prob'
-        pruning_param = args.num_minhash_funcs if 'minhash_lsh' in args.pruning_method else args.random_pruning_prob
-        tags.append(f'{pruning_param_name}: {pruning_param}')
-        clearml_task = get_clearml_logger(project_name="GNN_synthetic_pruning_dimensionality",
-                                          task_name=get_time_str(),
-                                          tags=tags)
+    # if args.enable_clearml_logger:
+    #     tb_writer = None #SummaryWriter(log_dir=None)
+    #     tags = [
+    #         f'Pruning method: {args.pruning_method}',
+    #         f'Architecture: {args.gnn}',
+    #         f'dim_edges:{args.dim_edges}',
+    #     ]
+    #     pruning_param_name = 'num_minhash_funcs' if 'minhash_lsh' in args.pruning_method else 'random_pruning_prob'
+    #     pruning_param = args.num_minhash_funcs if 'minhash_lsh' in args.pruning_method else args.random_pruning_prob
+    #     tags.append(f'{pruning_param_name}: {pruning_param}')
+    #     clearml_task = get_clearml_logger(project_name="GNN_synthetic_pruning_dimensionality",
+    #                                       task_name=get_time_str(),
+    #                                       tags=tags)
 
     print(f"{time.time() - start_time:.4f} start time")
     graph_dataset, prunning_ratio, best_train, best_test, avg_time_train, avg_time_test = \

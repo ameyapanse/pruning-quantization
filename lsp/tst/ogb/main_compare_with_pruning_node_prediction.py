@@ -3,7 +3,7 @@ import time
 import numpy as np
 import pandas as pd
 import torch
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.data import NeighborSampler
 
 from src.utils.csv_utils import prepare_csv
@@ -21,8 +21,8 @@ sage = False
 def run(args):
     dataset = get_dataset(args.dataset)
     data = dataset.data
-    tb_writer = SummaryWriter()
-    tb_writer.iteration = 0
+    tb_writer =None
+    # tb_writer.iteration = 0
 
     device = torch.device("cuda:" + str(args.device)) if torch.cuda.is_available() and args.device != 'cpu' else torch.device("cpu")
     model = get_model(dataset.data.num_features, dataset.num_classes, args.gnn)
@@ -59,11 +59,11 @@ def run(args):
         print(f'Train ACC: {train_acc:.4f}, Val ACC: {val_acc:.4f}, '
               f'Test ACC: {test_acc:.4f}')
 
-        tb_writer.add_scalars('Accuracy',
-                              {'train': train_acc,
-                               'Validation': val_acc,
-                               'Test': test_acc},
-                              epoch)
+        # tb_writer.add_scalars('Accuracy',
+        #                       {'train': train_acc,
+        #                        'Validation': val_acc,
+        #                        'Test': test_acc},
+        #                       epoch)
 
         best_train = max(best_train, train_acc)
         best_test = max(best_test, test_acc)
@@ -80,18 +80,18 @@ def main(args, csv_file):
     """
     args.pruning_method = 'minhash_lsh'
     tb_writer = None
-    if args.enable_clearml_logger:
-        tb_writer = SummaryWriter(log_dir=None)
-        tags = [
-            f'Pruning method: {args.pruning_method}',
-            f'Architecture: {args.gnn}',
-        ]
-        pruning_param_name = 'num_minhash_funcs' if args.pruning_method == 'minhash_lsh' else 'random_pruning_prob'
-        pruning_param = args.num_minhash_funcs if args.pruning_method == 'minhash_lsh' else args.random_pruning_prob
-        tags.append(f'{pruning_param_name}: {pruning_param}')
-        clearml_logger = get_clearml_logger(project_name=f"GNN_{args.dataset}_{args.gnn}_pruning",
-                                            task_name=get_time_str(),
-                                            tags=tags)
+    # if args.enable_clearml_logger:
+    #     tb_writer = SummaryWriter(log_dir=None)
+    #     tags = [
+    #         f'Pruning method: {args.pruning_method}',
+    #         f'Architecture: {args.gnn}',
+    #     ]
+    #     pruning_param_name = 'num_minhash_funcs' if args.pruning_method == 'minhash_lsh' else 'random_pruning_prob'
+    #     pruning_param = args.num_minhash_funcs if args.pruning_method == 'minhash_lsh' else args.random_pruning_prob
+    #     tags.append(f'{pruning_param_name}: {pruning_param}')
+    #     clearml_logger = get_clearml_logger(project_name=f"GNN_{args.dataset}_{args.gnn}_pruning",
+    #                                         task_name=get_time_str(),
+    #                                         tags=tags)
 
     print(f"{time.time() - start_time:.4f} start time")
     prunning_ratio, best_train, best_test, avg_time_train, avg_time_test = run(args)
@@ -113,19 +113,19 @@ def main(args, csv_file):
     args.pruning_method = 'random'
     args.random_pruning_prob = prunning_ratio
     tb_writer = None
-    if args.enable_clearml_logger:
-        clearml_logger.close()
-        tb_writer = SummaryWriter(log_dir=None)
-        tags = [
-            f'Pruning method: {args.pruning_method}',
-            f'Architecture: {args.gnn}',
-        ]
-        pruning_param_name = 'num_minhash_funcs' if args.pruning_method == 'minhash_lsh' else 'random_pruning_prob'
-        pruning_param = args.num_minhash_funcs if args.pruning_method == 'minhash_lsh' else args.random_pruning_prob
-        tags.append(f'{pruning_param_name}: {pruning_param}')
-        clearml_logger = get_clearml_logger(project_name=f"GNN_{args.dataset}_{args.gnn}_pruning",
-                                            task_name=get_time_str(),
-                                            tags=tags)
+    # if args.enable_clearml_logger:
+    #     clearml_logger.close()
+    #     tb_writer = SummaryWriter(log_dir=None)
+    #     tags = [
+    #         f'Pruning method: {args.pruning_method}',
+    #         f'Architecture: {args.gnn}',
+    #     ]
+    #     pruning_param_name = 'num_minhash_funcs' if args.pruning_method == 'minhash_lsh' else 'random_pruning_prob'
+    #     pruning_param = args.num_minhash_funcs if args.pruning_method == 'minhash_lsh' else args.random_pruning_prob
+    #     tags.append(f'{pruning_param_name}: {pruning_param}')
+    #     clearml_logger = get_clearml_logger(project_name=f"GNN_{args.dataset}_{args.gnn}_pruning",
+    #                                         task_name=get_time_str(),
+    #                                         tags=tags)
 
     print(f"{time.time() - start_time:.4f} start time")
     prunning_ratio, best_train, best_test, avg_time_train, avg_time_test = run(args)

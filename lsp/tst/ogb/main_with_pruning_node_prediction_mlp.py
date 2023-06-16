@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from sklearn.metrics import f1_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 from torch_geometric.datasets import Reddit, Amazon, Planetoid
 from tqdm import tqdm
 
@@ -55,9 +55,9 @@ def train(epoch, dataset, train_loader, model, device, optimizer, tb_writer):
         y_pred = torch.cat([y_pred, out.argmax(dim=-1).detach().cpu()])
         y_true = torch.cat([y_true, y.detach().cpu()])
 
-        if tb_writer is not None:
-            tb_writer.add_scalar('Loss/train_iterations', loss.item(), tb_writer.iteration)
-            tb_writer.iteration += 1
+        # if tb_writer is not None:
+        #     tb_writer.add_scalar('Loss/train_iterations', loss.item(), tb_writer.iteration)
+        #     tb_writer.iteration += 1
 
     pbar.close()
 
@@ -140,8 +140,8 @@ def main():
     args = get_args()
     dataset = get_dataset(args.dataset)
     data = dataset.data
-    tb_writer = SummaryWriter()
-    tb_writer.iteration = 0
+    tb_writer = None #SummaryWriter()
+    #tb_writer.iteration = 0
 
     device = torch.device(
         "cuda:" + str(args.device)) if torch.cuda.is_available() and args.device != 'cpu' else torch.device("cpu")
@@ -176,11 +176,11 @@ def main():
         print(f'Train ACC: {train_acc:.4f}, Val ACC: {val_acc:.4f}, '
               f'Test ACC: {test_acc:.4f}')
 
-        tb_writer.add_scalars('Accuracy',
-                              {'train': train_acc,
-                               'Validation': val_acc,
-                               'Test': test_acc},
-                              epoch)
+        # tb_writer.add_scalars('Accuracy',
+        #                       {'train': train_acc,
+        #                        'Validation': val_acc,
+        #                        'Test': test_acc},
+        #                       epoch)
 
 
 if __name__ == '__main__':

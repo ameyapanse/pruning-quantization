@@ -2,7 +2,7 @@ import time
 
 import torch
 from tqdm import tqdm
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 
 
 def train(model, dataset, device, loader, optimizer, cls_criterion, tb_writer=None):

@@ -9,10 +9,10 @@ from sklearn.metrics import f1_score
 from torch.optim import Adam
 #from torch.utils.tensorboard import SummaryWriter
 
-from lsp.src.archs.ppi_gat.ppi_gat import GAT, LayerType
-from lsp.src.utils.date_utils import get_time_str
-from lsp.src.utils.logging_utils import get_clearml_logger
-from lsp.tst.utils.ppi_data_loading import load_graph_data
+from src.archs.ppi_gat.ppi_gat import GAT, LayerType
+from src.utils.date_utils import get_time_str
+from src.utils.logging_utils import get_clearml_logger
+from tst.utils.ppi_data_loading import load_graph_data
 
 
 # Implementation from https://github.com/gordicaleksa/pytorch-GAT

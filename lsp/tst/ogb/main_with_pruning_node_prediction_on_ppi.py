@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from sklearn.metrics import f1_score
 from torch.optim import Adam
-from torch.utils.tensorboard import SummaryWriter
+#from torch.utils.tensorboard import SummaryWriter
 
 from lsp.src.archs.ppi_gat.ppi_gat import GAT, LayerType
 from lsp.src.utils.date_utils import get_time_str

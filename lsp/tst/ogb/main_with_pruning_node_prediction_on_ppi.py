@@ -9,10 +9,10 @@ from sklearn.metrics import f1_score
 from torch.optim import Adam
 from torch.utils.tensorboard import SummaryWriter
 
-from src.archs.ppi_gat.ppi_gat import GAT, LayerType
-from src.utils.date_utils import get_time_str
-from src.utils.logging_utils import get_clearml_logger
-from tst.utils.ppi_data_loading import load_graph_data
+from lsp.src.archs.ppi_gat.ppi_gat import GAT, LayerType
+from lsp.src.utils.date_utils import get_time_str
+from lsp.src.utils.logging_utils import get_clearml_logger
+from lsp.tst.utils.ppi_data_loading import load_graph_data
 
 
 # Implementation from https://github.com/gordicaleksa/pytorch-GAT
@@ -76,9 +76,9 @@ def get_main_loop(args, gat, sigmoid_cross_entropy_loss, optimizer, patience_per
             if phase == LoopPhase.TRAIN:
                 main_loop.best_train_perf = max(micro_f1, main_loop.best_train_perf)
                 # Log metrics
-                if args.enable_tensorboard:
-                    tb_writer.add_scalar('training_loss', loss.item(), global_step)
-                    tb_writer.add_scalar('training_micro_f1', micro_f1, global_step)
+                # if args.enable_tensorboard:
+                #     tb_writer.add_scalar('training_loss', loss.item(), global_step)
+                #     tb_writer.add_scalar('training_micro_f1', micro_f1, global_step)
 
                 # Log to console
                 if args.console_log_freq is not None and batch_idx % args.console_log_freq == 0:
@@ -87,9 +87,9 @@ def get_main_loop(args, gat, sigmoid_cross_entropy_loss, optimizer, patience_per
 
             elif phase == LoopPhase.VAL:
                 # Log metrics
-                if args.enable_tensorboard:
-                    tb_writer.add_scalar('val_loss', loss.item(), global_step)
-                    tb_writer.add_scalar('val_micro_f1', micro_f1, global_step)
+                # if args.enable_tensorboard:
+                #     tb_writer.add_scalar('val_loss', loss.item(), global_step)
+                #     tb_writer.add_scalar('val_micro_f1', micro_f1, global_step)
 
                 # Log to console
                 if args.console_log_freq is not None and batch_idx % args.console_log_freq == 0:
@@ -200,9 +200,9 @@ def train_gat_ppi(args, tb_writer, clearml_task):
         print(f'Test micro-F1 = {main_loop.best_test_perf}')
 
     print(f"Pruning ratio: {prune_ratio}")
-    tb_writer.add_scalar('time/train', np.mean(train_times), 0)
-    tb_writer.add_scalar('time/val', np.mean(val_times), 0)
-    tb_writer.add_scalar('test', micro_f1, 0)
+    # tb_writer.add_scalar('time/train', np.mean(train_times), 0)
+    # tb_writer.add_scalar('time/val', np.mean(val_times), 0)
+    # tb_writer.add_scalar('test', micro_f1, 0)
 
     experiment_logs = dict()
     experiment_logs = clearml_task.connect(experiment_logs)
@@ -212,6 +212,8 @@ def train_gat_ppi(args, tb_writer, clearml_task):
     experiment_logs['max train accuracy'] = main_loop.best_train_perf
     experiment_logs['max val accuracy'] = main_loop.best_val_perf
     experiment_logs['test accuracy'] = main_loop.best_test_perf
+    print(experiment_logs)
+    return experiment_logs
 
 
 def get_training_args():
@@ -285,25 +287,25 @@ def get_training_args():
     #     training_config[arg] = getattr(args, arg)
     tb_writer = None
     clearml_logger = None
-    if args.enable_clearml_logger:
-        args.enable_tensorboard = True
-        tb_writer = SummaryWriter()
-        tags = [
-            f'Dataset: {args.dataset_name}',
-            f'Pruning method: {args.pruning_method}',
-            f'Architecture: {args.gnn}',
-        ]
-        pruning_param_name = 'num_minhash_funcs' if 'minhash_lsh' in args.pruning_method else 'random_pruning_prob'
-        pruning_param = args.num_minhash_funcs if 'minhash_lsh' in args.pruning_method else args.random_pruning_prob
-        tags.append(f'{pruning_param_name}: {pruning_param}')
-
-        if pruning_param_name == 'num_minhash_funcs':
-            tags.append(f'Sparsity: {args.sparsity}')
-            tags.append(f'Complement: {args.complement}')
-
-        clearml_logger = get_clearml_logger(project_name=f"GNN_PPI_{args.gnn}",
-                                            task_name=get_time_str(),
-                                            tags=tags)
+    # if args.enable_clearml_logger:
+    #     args.enable_tensorboard = True
+    #     #tb_writer = SummaryWriter()
+    #     tags = [
+    #         f'Dataset: {args.dataset_name}',
+    #         f'Pruning method: {args.pruning_method}',
+    #         f'Architecture: {args.gnn}',
+    #     ]
+    #     pruning_param_name = 'num_minhash_funcs' if 'minhash_lsh' in args.pruning_method else 'random_pruning_prob'
+    #     pruning_param = args.num_minhash_funcs if 'minhash_lsh' in args.pruning_method else args.random_pruning_prob
+    #     tags.append(f'{pruning_param_name}: {pruning_param}')
+    #
+    #     if pruning_param_name == 'num_minhash_funcs':
+    #         tags.append(f'Sparsity: {args.sparsity}')
+    #         tags.append(f'Complement: {args.complement}')
+    #
+    #     clearml_logger = get_clearml_logger(project_name=f"GNN_PPI_{args.gnn}",
+    #                                         task_name=get_time_str(),
+    #                                         tags=tags)
 
     return args, tb_writer, clearml_logger
 

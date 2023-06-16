@@ -12,7 +12,7 @@ from torch.hub import download_url_to_file
 from torch.utils.data import DataLoader, Dataset
 from torch_geometric.data import Data
 
-from tst.ogb.main_pyg_with_pruning import prune_dataset
+from lsp.tst.ogb.main_pyg_with_pruning import prune_dataset
 
 DATA_DIR_PATH = os.path.join(os.path.dirname(__file__), os.pardir, 'data')
 PPI_PATH = os.path.join(DATA_DIR_PATH, 'ppi')

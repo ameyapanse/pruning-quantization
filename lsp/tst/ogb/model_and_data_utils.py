@@ -11,14 +11,14 @@ from ogb.graphproppred import PygGraphPropPredDataset
 from ogb.graphproppred.mol_encoder import AtomEncoder, BondEncoder
 from torch_geometric.utils import to_networkx, from_networkx
 
-from src.archs.MXMNet import MXMNet
-from src.archs.SimpleGCN import SimpleGCN
-from src.archs.pna import PNA
-from tst.ogb.encoder_utils import ASTNodeEncoder, get_vocab_mapping
-from src.archs.gat_geometric import GAT
-from tst.ogb.gcn import GCN
-from tst.ogb.gnn import GNN
-from src.archs.monet import MoNet
+from lsp.src.archs.MXMNet import MXMNet
+from lsp.src.archs.SimpleGCN import SimpleGCN
+from lsp.src.archs.pna import PNA
+from lsp.tst.ogb.encoder_utils import ASTNodeEncoder, get_vocab_mapping
+from lsp.src.archs.gat_geometric import GAT
+from lsp.tst.ogb.gcn import GCN
+from lsp.tst.ogb.gnn import GNN
+from lsp.src.archs.monet import MoNet
 
 
 def get_output_dimension(dataset: PygGraphPropPredDataset):

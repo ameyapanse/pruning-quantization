@@ -1,18 +1,18 @@
 import argparse
 import enum
 import time
-import numpy as np
 
+import numpy as np
 import torch
 import torch.nn as nn
 from sklearn.metrics import f1_score
 from torch.optim import Adam
-#from torch.utils.tensorboard import SummaryWriter
 
-from src.archs.ppi_gat.ppi_gat import GAT, LayerType
-from src.utils.date_utils import get_time_str
-from src.utils.logging_utils import get_clearml_logger
-from tst.utils.ppi_data_loading import load_graph_data
+from lsp.src.archs.ppi_gat.ppi_gat import GAT, LayerType
+from lsp.tst.utils.ppi_data_loading import load_graph_data
+
+
+# from torch.utils.tensorboard import SummaryWriter
 
 
 # Implementation from https://github.com/gordicaleksa/pytorch-GAT

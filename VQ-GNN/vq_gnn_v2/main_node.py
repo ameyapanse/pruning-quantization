@@ -189,7 +189,7 @@ def main():
     device = torch.device(device)
 
 
-    data, val_data, test_data, dataset, evaluator, cluster_indices = get_data(args, lsp_args)
+    data, val_data, test_data, dataset, evaluator, cluster_indices = get_data(args, lsp_args, device)
     # data_loader_train, data_loader_val, data_loader_test, prune_ratio = load_graph_data(lsp_args, device)
     if val_data is not None and test_data is not None :
         assert cluster_indices is None

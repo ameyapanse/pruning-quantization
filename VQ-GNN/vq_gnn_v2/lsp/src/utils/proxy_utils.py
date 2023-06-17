@@ -1,5 +1,5 @@
-from definitions_gnn_experiments import ROOT_DIR
-from src.utils.file_utils import file_exists
+from lsp.definitions_gnn_experiments import ROOT_DIR
+from lsp.src.utils.file_utils import file_exists
 from urllib.parse import unquote_plus
 
 

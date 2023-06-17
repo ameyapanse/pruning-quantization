@@ -9,10 +9,11 @@ import numpy as np
 import torch
 from networkx.readwrite import json_graph
 from torch.hub import download_url_to_file
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from torch_geometric.data import Data
+from torch_geometric.data.in_memory_dataset import InMemoryDataset
 
-from tst.ogb.main_pyg_with_pruning import prune_dataset
+from lsp.tst.ogb.main_pyg_with_pruning import prune_dataset
 
 DATA_DIR_PATH = os.path.join(os.path.dirname(__file__), os.pardir, 'data')
 PPI_PATH = os.path.join(DATA_DIR_PATH, 'ppi')
@@ -163,32 +164,32 @@ def load_graph_data(args, device, PPI_URL='https://data.dgl.ai/dataset/ppi.zip')
         edge_count = count_edges(train_edge_index + val_edge_index + test_edge_index)
         prune_ratio = edge_count / old_edge_count
         print(f"Old number of edges: {old_edge_count}. New one: {edge_count}. Change: {prune_ratio * 100}\%")
-
-        data_loader_train = GraphDataLoader(
-            train_node_features,
-            train_node_labels,
-            train_edge_index,
-            batch_size=args.batch_size,
-            shuffle=True
-        )
-
-        data_loader_val = GraphDataLoader(
-            val_node_features,
-            val_node_labels,
-            val_edge_index,
-            batch_size=args.batch_size,
-            shuffle=False  # no need to shuffle the validation and test graphs
-        )
-
-        data_loader_test = GraphDataLoader(
-            test_node_features,
-            test_node_labels,
-            test_edge_index,
-            batch_size=args.batch_size,
-            shuffle=False
-        )
-
-        return data_loader_train, data_loader_val, data_loader_test, prune_ratio
+        return train_node_features,train_node_labels,train_edge_index,val_node_features,val_node_labels,val_edge_index, test_node_features,test_node_labels,test_edge_index
+        # data_loader_train = GraphDataLoader(
+        #     train_node_features,
+        #     train_node_labels,
+        #     train_edge_index,
+        #     batch_size=args.batch_size,
+        #     shuffle=True
+        # )
+        #
+        # data_loader_val = GraphDataLoader(
+        #     val_node_features,
+        #     val_node_labels,
+        #     val_edge_index,
+        #     batch_size=args.batch_size,
+        #     shuffle=False  # no need to shuffle the validation and test graphs
+        # )
+        #
+        # data_loader_test = GraphDataLoader(
+        #     test_node_features,
+        #     test_node_labels,
+        #     test_edge_index,
+        #     batch_size=args.batch_size,
+        #     shuffle=False
+        # )
+        #
+        # return data_loader_train, data_loader_val, data_loader_test, prune_ratio
 
 
 class GraphDataLoader(DataLoader):
@@ -202,16 +203,19 @@ class GraphDataLoader(DataLoader):
         super().__init__(graph_dataset, batch_size, shuffle, collate_fn=graph_collate_fn)
 
 
-class GraphDataset(Dataset):
+class GraphDataset(InMemoryDataset):
     """
     This one just fetches a single graph from the split when GraphDataLoader "asks" it
     """
 
-    def __init__(self, node_features_list, node_labels_list, edge_index_list):
+    def __init__(self, node_features_list, node_labels_list, edge_index_list, **kwargs):
         self.node_features_list = node_features_list
         self.node_labels_list = node_labels_list
         self.edge_index_list = edge_index_list
-
+        self.x = self.node_features_list
+        self.y = self.node_labels_list
+        self.edge_index = edge_index_list
+        super().__init__(**kwargs)
     # 2 interface functions that need to be defined are len and getitem so that DataLoader can do it's magic
     def __len__(self):
         return len(self.edge_index_list)

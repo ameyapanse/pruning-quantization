@@ -34,7 +34,7 @@ def parse() :
     parser.add_argument('--lr', type=float, default=3e-3)
     parser.add_argument('--epochs', type=int, default=5000)
 
-    parser.add_argument('--batch-size', type=int, default=100)
+    parser.add_argument('--batch-size', type=int, default=60000)
     parser.add_argument('--test-batch-size', type=int, default=60000)
     parser.add_argument('--num-M', type=int, default=256)
     parser.add_argument('--num-D', type=int, default=4)

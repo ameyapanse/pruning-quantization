@@ -4,7 +4,7 @@ from torch_geometric.nn import global_add_pool, global_mean_pool, global_max_poo
 import torch.nn.functional as F
 from torch_geometric.nn.inits import uniform
 
-from tst.ogb.conv_ppa import GNN_node, GNN_node_Virtualnode
+from lsp.tst.ogb.conv_ppa import GNN_node, GNN_node_Virtualnode
 
 from torch_scatter import scatter_mean
 

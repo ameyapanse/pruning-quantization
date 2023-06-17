@@ -17,18 +17,18 @@ from torch_geometric.datasets import MNISTSuperpixels, ZINC, QM9
 from torchvision import transforms
 from warmup_scheduler import GradualWarmupScheduler
 
-from src.utils.date_utils import get_time_str
-from src.utils.email_utils import GmailNotifier
-from src.utils.evaluate import Evaluator
-from src.utils.extract_target_transform import ExtractTargetTransform
-from src.utils.graph_prune_utils import tg_dataset_prune
-from src.utils.logging_utils import register_logger, log_args_description, get_clearml_logger, log_command
-from src.utils.lsh_euclidean_tools import LSH
-from src.utils.minhash_tools import MinHash, MinHashRep, MinHashRandomProj
-from src.utils.proxy_utils import set_proxy
-from tst.ogb.encoder_utils import augment_edge, decode_arr_to_seq, encode_y_to_arr, get_vocab_mapping
-from tst.ogb.exp_utils import get_loss_function, evaluate, train
-from tst.ogb.model_and_data_utils import add_zeros, create_model
+from lsp.src.utils.date_utils import get_time_str
+from lsp.src.utils.email_utils import GmailNotifier
+from lsp.src.utils.evaluate import Evaluator
+from lsp.src.utils.extract_target_transform import ExtractTargetTransform
+from lsp.src.utils.graph_prune_utils import tg_dataset_prune
+from lsp.src.utils.logging_utils import register_logger, log_args_description, get_clearml_logger, log_command
+from lsp.src.utils.lsh_euclidean_tools import LSH
+from lsp.src.utils.minhash_tools import MinHash, MinHashRep, MinHashRandomProj
+from lsp.src.utils.proxy_utils import set_proxy
+from lsp.tst.ogb.encoder_utils import augment_edge, decode_arr_to_seq, encode_y_to_arr, get_vocab_mapping
+from lsp.tst.ogb.exp_utils import get_loss_function, evaluate, train
+from lsp.tst.ogb.model_and_data_utils import add_zeros, create_model
 
 
 def get_prune_args(pruning_method: str, num_minhash_funcs: int, random_pruning_prob: float, node_dim: int) -> Dict:

@@ -8,8 +8,67 @@ import torch_geometric.transforms as T
 from torch_geometric.datasets import Flickr, Yelp, PPI, Reddit, GNNBenchmarkDataset
 from torch_geometric.data import Batch
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
-
+from lsp.tst.ogb.main_pyg_with_pruning import prune_dataset
 import os
+
+class MyToSparseTensor(object):
+    r"""Converts the :obj:`edge_index` attribute of a data object into a
+    (transposed) :class:`torch_sparse.SparseTensor` type with key
+    :obj:`adj_.t`.
+
+    .. note::
+
+        In case of composing multiple transforms, it is best to convert the
+        :obj:`data` object to a :obj:`SparseTensor` as late as possible, since
+        there exist some transforms that are only able to operate on
+        :obj:`data.edge_index` for now.
+
+    Args:
+        remove_faces (bool, optional): If set to :obj:`False`, the
+            :obj:`edge_index` tensor will not be removed.
+            (default: :obj:`True`)
+        fill_cache (bool, optional): If set to :obj:`False`, will not
+            fill the underlying :obj:`SparseTensor` cache.
+            (default: :obj:`True`)
+    """
+    def __init__(self, remove_edge_index: bool = True,
+                 fill_cache: bool = True):
+        self.remove_edge_index = remove_edge_index
+        self.fill_cache = fill_cache
+
+    def __call__(self, data):
+        assert data.edge_index is not None
+
+        (row, col), N, E = data.edge_index, data.num_nodes, data.num_edges
+        perm = (col * N + row).argsort()
+        row, col = row[perm], col[perm]
+
+        if self.remove_edge_index:
+            data.edge_index = None
+
+        value = None
+        for key in ['edge_weight', 'edge_attr', 'edge_type']:
+            if data[key] is not None:
+                value = data[key][perm]
+                if self.remove_edge_index:
+                    data[key] = None
+                break
+
+        for key, item in data:
+            if item.size(0) == E:
+                data[key] = item[perm]
+
+        data.adj_t = SparseTensor(row=col, col=row, value=value,
+                                  sparse_sizes=None, is_sorted=True)
+
+        if self.fill_cache:  # Pre-process some important attributes.
+            data.adj_t.storage.rowptr()
+            data.adj_t.storage.csr2csc()
+
+        return data
+
+    def __repr__(self):
+        return f'{self.__class__.__name__}()'
 
 def norm_adj(data, conv_type):
     if conv_type == 'GCN':
@@ -58,7 +117,6 @@ def prepare_batch_input(x, batch, device) :
     subset, edge_index, edge_w = batch[0]
     batch_idx = batch[-1]
 
-    import pdb
     from torch_geometric.utils import add_remaining_self_loops
 
     new_edge_index = add_remaining_self_loops(edge_index)[0]
@@ -141,14 +199,14 @@ def index2mask(idx, size):
     mask[idx] = True
     return mask
 
-def get_data(args) :
+def get_data(args, lsp_args=None, device=None) :
     if args.dataset in {'arxiv', 'products'}:
         dataset = PygNodePropPredDataset(name=f'ogbn-{args.dataset}',
                                          transform=T.ToSparseTensor(),
                                          root=os.path.join(args.data_root, 'ogb'))
     elif args.dataset == 'flickr':
         dataset = Flickr(root=os.path.join(args.data_root, 'graph', args.dataset),
-                         transform=T.ToSparseTensor())
+                         transform=MToSparseTensor())
     elif args.dataset == 'yelp':
         dataset = Yelp(root=os.path.join(args.data_root, 'graph', args.dataset),
                        transform=T.ToSparseTensor())
@@ -157,12 +215,32 @@ def get_data(args) :
                          transform=T.ToSparseTensor())
     elif args.dataset == 'ppi':
         print('PPI loaded')
+        # tr_x, tr_y, tr_e, v_x, v_y, v_e, tst_x, tst_y, tst_e = load_graph_data(lsp_args, device=device)
+        # dataset = GraphDataset(tr_x, tr_y, tr_e, transform=T.ToSparseTensor())
+        # val_dataset = GraphDataset(v_x, v_y, v_e, transform=T.ToSparseTensor())
+        # test_dataset = GraphDataset(tst_x, tst_y, tst_e, transform=T.ToSparseTensor())
+        #
         dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                      transform=T.ToSparseTensor(), split='train')
+                      transform=MyToSparseTensor(), split='train')
+        # dataset2 = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
+        #               transform=T.ToSparseTensor(), split='train')
         val_dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                          transform=T.ToSparseTensor(), split='val')
+                          transform=MyToSparseTensor(), split='val')
         test_dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                           transform=T.ToSparseTensor(), split='test')
+                           transform=MyToSparseTensor(), split='test')
+
+        if lsp_args is not None:
+            train = [dataset.data]
+            val = [val_dataset.data]
+            test = [test_dataset.data]
+            pruning_params, prunning_ratio = prune_dataset(train, lsp_args, pruning_params=None)
+            prune_dataset(val, lsp_args, pruning_params=None)
+            prune_dataset(test, lsp_args, pruning_params=None)
+            dataset.data.edge_attr = None
+            val_dataset.data.edge_attr = None
+            test_dataset.data.edge_attr = None
+            print(pruning_params, prunning_ratio)
+
         data, val_data, test_data = inductive_data(dataset), inductive_data(val_dataset), inductive_data(
             test_dataset)
     elif args.dataset == 'cluster':

@@ -5,8 +5,8 @@ from torch_geometric.nn import global_add_pool, radius
 from torch_geometric.utils import remove_self_loops
 from torch_sparse import SparseTensor
 
-from src.archs.mxnet_utils.layers import Global_MP, Local_MP
-from src.archs.mxnet_utils.utils import BesselBasisLayer, SphericalBasisLayer, MLP
+from lsp.src.archs.mxnet_utils.layers import Global_MP, Local_MP
+from lsp.src.archs.mxnet_utils.utils import BesselBasisLayer, SphericalBasisLayer, MLP
 
 
 # Implementation from: https://github.com/zetayue/MXMNet

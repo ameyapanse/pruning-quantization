@@ -3,10 +3,9 @@
 import torch
 from models import LowRankGNN
 from dataloader import OurDataLoader
-from utils.logger import Logger, AverageValueMeter, exp_log
+from utils.logger import Logger, AverageValueMeter
 from utils.parser import parse
 from utils.misc import compute_micro_f1, prepare_batch_input, get_data
-from lsp.tst.utils.ppi_data_loading import load_graph_data
 from lsp.tst.ogb.main_with_pruning_node_prediction_on_ppi import get_training_args
 import time
 from datetime import timedelta

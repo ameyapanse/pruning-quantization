@@ -5,12 +5,10 @@ import torch
 from torch import Tensor
 from torch_geometric.data import Data
 import torch_geometric.transforms as T
-from torch_geometric.utils.sparse import dense_to_sparse
 from torch_geometric.datasets import Flickr, Yelp, PPI, Reddit, GNNBenchmarkDataset
 from torch_geometric.data import Batch
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
 from lsp.tst.ogb.main_pyg_with_pruning import prune_dataset
-from lsp.tst.utils.ppi_data_loading import GraphDataset, load_graph_data
 import os
 
 class MyToSparseTensor(object):
@@ -119,7 +117,6 @@ def prepare_batch_input(x, batch, device) :
     subset, edge_index, edge_w = batch[0]
     batch_idx = batch[-1]
 
-    import pdb
     from torch_geometric.utils import add_remaining_self_loops
 
     new_edge_index = add_remaining_self_loops(edge_index)[0]

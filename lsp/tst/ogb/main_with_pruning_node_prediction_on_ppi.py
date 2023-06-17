@@ -247,7 +247,7 @@ def get_training_args():
     parser.add_argument("--ppi_load_test_only", type=bool, default=False, help='')
 
     # Pruning specific params:
-    parser.add_argument('--pruning_method', type=str, default='random',
+    parser.add_argument('--pruning_method', type=str, default='minhash_lsh_thresholding',
                         choices=["minhash_lsh_thresholding", "minhash_lsh_projection", "random"])
     parser.add_argument('--random_pruning_prob', type=float, default=.5)
     parser.add_argument('--num_minhash_funcs', type=int, default=1)

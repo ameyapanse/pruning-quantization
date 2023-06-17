@@ -6,7 +6,8 @@ from dataloader import OurDataLoader
 from utils.logger import Logger, AverageValueMeter, exp_log
 from utils.parser import parse
 from utils.misc import compute_micro_f1, prepare_batch_input, get_data
-
+from lsp.tst.utils.ppi_data_loading import load_graph_data
+from lsp.tst.ogb.main_with_pruning_node_prediction_on_ppi import get_training_args
 import time
 from datetime import timedelta
 
@@ -173,6 +174,7 @@ def test_inference(model, data, device, loader):
 def main():
 
     args = parse()
+    lsp_args, _, _ = get_training_args()
     # if args.exp :
     #     experiment = Experiment(
     #         api_key="",
@@ -186,8 +188,9 @@ def main():
     device = f'cuda:{args.device}' if torch.cuda.is_available() else 'cpu'
     device = torch.device(device)
 
-    data, val_data, test_data, dataset, evaluator, cluster_indices = get_data(args)
 
+    data, val_data, test_data, dataset, evaluator, cluster_indices = get_data(args, lsp_args)
+    # data_loader_train, data_loader_val, data_loader_test, prune_ratio = load_graph_data(lsp_args, device)
     if val_data is not None and test_data is not None :
         assert cluster_indices is None
         test_loader_val = OurDataLoader(val_data, cluster_indices, gnn_type=args.conv_type,

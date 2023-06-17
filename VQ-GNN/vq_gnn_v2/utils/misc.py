@@ -8,7 +8,7 @@ import torch_geometric.transforms as T
 from torch_geometric.datasets import Flickr, Yelp, PPI, Reddit, GNNBenchmarkDataset
 from torch_geometric.data import Batch
 from ogb.nodeproppred import PygNodePropPredDataset, Evaluator
-
+from lsp.tst.ogb.main_pyg_with_pruning import prune_dataset
 import os
 
 def norm_adj(data, conv_type):
@@ -141,7 +141,7 @@ def index2mask(idx, size):
     mask[idx] = True
     return mask
 
-def get_data(args) :
+def get_data(args, lsp_args=None) :
     if args.dataset in {'arxiv', 'products'}:
         dataset = PygNodePropPredDataset(name=f'ogbn-{args.dataset}',
                                          transform=T.ToSparseTensor(),
@@ -163,6 +163,16 @@ def get_data(args) :
                           transform=T.ToSparseTensor(), split='val')
         test_dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
                            transform=T.ToSparseTensor(), split='test')
+
+        if lsp_args is not None:
+            train = [dataset.data]
+            val = [val_dataset.data]
+            test = [test_dataset.data]
+            pruning_params, prunning_ratio = prune_dataset(train, lsp_args, pruning_params=None)
+            prune_dataset(val, lsp_args, pruning_params=None)
+            prune_dataset(test, lsp_args, pruning_params=None)
+            print(pruning_params, prunning_ratio)
+
         data, val_data, test_data = inductive_data(dataset), inductive_data(val_dataset), inductive_data(
             test_dataset)
     elif args.dataset == 'cluster':

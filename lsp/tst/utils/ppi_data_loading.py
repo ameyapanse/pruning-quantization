@@ -211,6 +211,9 @@ class GraphDataset(Dataset):
         self.node_features_list = node_features_list
         self.node_labels_list = node_labels_list
         self.edge_index_list = edge_index_list
+        self.x = self.node_features_list
+        self.y = self.node_labels_list
+        self.adj_t = self.edge_index_list
 
     # 2 interface functions that need to be defined are len and getitem so that DataLoader can do it's magic
     def __len__(self):

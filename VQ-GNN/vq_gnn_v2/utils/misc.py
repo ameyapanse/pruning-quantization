@@ -158,11 +158,11 @@ def get_data(args, lsp_args=None) :
     elif args.dataset == 'ppi':
         print('PPI loaded')
         dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                      split='train')
+                      transform=T.ToSparseTensor(), split='train')
         val_dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                           split='val')
+                          transform=T.ToSparseTensor(), split='val')
         test_dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                           split='test')
+                           transform=T.ToSparseTensor(), split='test')
 
         if lsp_args is not None:
             train = [dataset.data]

@@ -158,11 +158,11 @@ def get_data(args, lsp_args=None) :
     elif args.dataset == 'ppi':
         print('PPI loaded')
         dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                      transform=T.ToSparseTensor(), split='train')
+                      split='train')
         val_dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                          transform=T.ToSparseTensor(), split='val')
+                           split='val')
         test_dataset = PPI(root=os.path.join(args.data_root, 'graph', args.dataset),
-                           transform=T.ToSparseTensor(), split='test')
+                           split='test')
 
         if lsp_args is not None:
             train = [dataset.data]
@@ -171,6 +171,9 @@ def get_data(args, lsp_args=None) :
             pruning_params, prunning_ratio = prune_dataset(train, lsp_args, pruning_params=None)
             prune_dataset(val, lsp_args, pruning_params=None)
             prune_dataset(test, lsp_args, pruning_params=None)
+            dataset.data.edge_attr = None
+            val_dataset.data.edge_attr = None
+            test_dataset.data.edge_attr = None
             print(pruning_params, prunning_ratio)
 
         data, val_data, test_data = inductive_data(dataset), inductive_data(val_dataset), inductive_data(
